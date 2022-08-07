@@ -1,40 +1,42 @@
-import throttle from "lodash.throttle";
+import throttle from 'lodash.throttle';
 
-const formEL = document.querySelector(".feedback-form");
-const textAreaEL = document.querySelector('form textarea[name = "message"]');
-const inputEl = document.querySelector('form input[name = "email"]');
+const formEl = document.querySelector('.feedback-form');
 
-const CURRENT_VALUE = "feedback-form-state";
+const CURRENT_VALUE = 'feedback-form-state';
 
-const FormValue = {};
+const formData = {};
 
-onLoadPage();
-
-const onFormVlaue = (event) => {
-  FormValue.email = inputEl.value;
-  FormValue.textarea = textAreaEL.value;
-  localStorage.setItem(CURRENT_VALUE, JSON.stringify(FormValue));
+const onFormValue = event => {
+  formData[event.target.name] = event.target.value;
+  localStorage.setItem(CURRENT_VALUE, JSON.stringify(formData));
 };
+
 function onLoadPage() {
   const saveValue = localStorage.getItem(CURRENT_VALUE);
   if (saveValue) {
     const parseValue = JSON.parse(saveValue);
-    inputEl.value = parseValue.email;
-    textAreaEL.value = parseValue.textarea;
+    for (const key in parseValue) {
+      if (parseValue.hasOwnProperty(key)) {
+        formEl.email.value = parseValue.email || '';
+        formEl.message.value = parseValue.message || '';
+      }
+    }
+  }
+}
+onLoadPage();
+
+const onSubmitForm = event => {
+  if (!formEl.email.value || !formEl.message.value) {
+    alert(`Placeholder all fields`);
   } else {
-    inputEl.value = "";
-    textAreaEL.value = "";
+    event.preventDefault();
+    let { email, message } = event.currentTarget;
+    email = formEl.email.value;
+    message = formEl.message.value;
+    console.log({ email, message });
+    event.currentTarget.reset();
+    localStorage.removeItem(CURRENT_VALUE);
   }
 };
-
-const onClearFormValue = (event) => {
-  event.preventDefault();
-  let { email, message } = event.currentTarget;
-  email = inputEl.value;
-  message = textAreaEL.value;
-  console.log({ email, message });
-  event.currentTarget.reset();
-  localStorage.removeItem(CURRENT_VALUE);
-};
-formEL.addEventListener("input", throttle(onFormVlaue, 500));
-formEL.addEventListener("submit", onClearFormValue);
+formEl.addEventListener('input', throttle(onFormValue, 500));
+formEl.addEventListener('submit', onSubmitForm);
