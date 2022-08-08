@@ -17,8 +17,7 @@ function onLoadPage() {
     const parseValue = JSON.parse(saveValue);
     for (const key in parseValue) {
       if (parseValue.hasOwnProperty(key)) {
-        formEl.email.value = parseValue.email || '';
-        formEl.message.value = parseValue.message || '';
+        formEl[key].value = parseValue[key] || '';
       }
     }
   }
@@ -26,17 +25,18 @@ function onLoadPage() {
 onLoadPage();
 
 const onSubmitForm = event => {
+  event.preventDefault();
   if (!formEl.email.value || !formEl.message.value) {
     alert(`Placeholder all fields`);
-  } else {
-    event.preventDefault();
-    let { email, message } = event.currentTarget;
-    email = formEl.email.value;
-    message = formEl.message.value;
-    console.log({ email, message });
-    event.currentTarget.reset();
-    localStorage.removeItem(CURRENT_VALUE);
+    return;
+  }
+  console.log(formData);
+  event.currentTarget.reset();
+  localStorage.removeItem(CURRENT_VALUE);
+  for (const key in formData) {
+    delete formData[key];
   }
 };
+
 formEl.addEventListener('input', throttle(onFormValue, 500));
 formEl.addEventListener('submit', onSubmitForm);
